@@ -1,0 +1,38 @@
+#!/bin/bash
+
+db="$1"
+cmd="$2"
+flag="$3"
+
+function init {
+    sqlite3 "$db" "CREATE TABLE IF NOT EXISTS done (flag TEXT PRIMARY KEY, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+}
+function set {
+    local flag="${1//\'/''}"
+    init
+    sqlite3 "$db" "INSERT OR REPLACE INTO done (flag) VALUES ('$flag')"
+}
+function get {
+    local flag="${1//\'/''}"
+    init
+    sqlite3 "$db" "SELECT time FROM done WHERE flag = '$flag'"
+}
+
+case "$cmd" in
+    set)
+        set "$flag"
+    ;;
+    has)
+        get "$flag" | grep -q -E '[[:digit:]]{4}\-[[:digit:]]{2}\-[[:digit:]]{2} [[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}'
+        exit "$?"
+    ;;
+    get)
+        get "$flag"
+    ;;
+    *)
+        echo "Usage: `basename "$0" [dbfile] [set|get|has] [flag]`"
+        echo "Sets flag in dbfile for later check"
+        exit
+    ;;
+esac
+
