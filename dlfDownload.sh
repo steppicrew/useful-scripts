@@ -7,7 +7,10 @@ if [ -z "$pageUrl" ]; then
     exit
 fi
 
+# get master file
 masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player:stream" content="([^"]+)">/'`
+
+# get playlist
 m3uUrl=`wget -O - -q "$masterFile" | perl -ne 'print $1 if /^(http.+)\s*$/'`
 
 baseUrl=`dirname "$m3uUrl"`
@@ -25,7 +28,7 @@ while read line; do
     cat "$outFile.tmp" >> "$outFile.m2t"
 done < "$m3uFile"
 
-ffmpeg -i "$outFile.m2t" -codec copy "$outFile"
+ffmpeg -i "$outFile.m2t" -codec copy "$outFile" && rm "$outFile.m2t"
 
 test -f "$m3uFile" && rm "$m3uFile"
 test -f "$outFile.tmp" && rm "$outFile.tmp"
