@@ -3,6 +3,13 @@
 # This script is for hanging plasma desktops
 # It simply finds the current running kwin process, kills it and starts it again with same parameters
 
+killall plasmashell
+kstart5 plasmashell
+
+exit
+
+
+
 user="`whoami`"
 
 pid="`pgrep -u "$user" kwin_x11`"
