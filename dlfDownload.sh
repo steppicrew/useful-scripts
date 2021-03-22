@@ -9,6 +9,18 @@ fi
 
 # get master file
 masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player:stream" content="([^"]+)">/'`
+test "$masterFile" || masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player" content="([^"]+)">/'`
+
+# get mp3 file
+mp3Urls=`wget -O - -q "$masterFile" | perl -ne 'print "$1 " if /data-audio-src="(https:\/\/[^"]+\.mp3)"/'`
+if [ "$mp3Urls" ]; then
+    for url in $mp3Urls; do
+        filename="`basename "$url"`"
+        test -f "$filename" && continue
+        wget --continue "$url" -O "$filename.part" && mv "$filename.part" "$filename"
+    done
+    exit
+fi
 
 # get playlist
 m3uUrl=`wget -O - -q "$masterFile" | perl -ne 'print $1 if /^(http.+)\s*$/'`
