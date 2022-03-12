@@ -10,7 +10,7 @@ crop="$4"
 scale="$5"
 
 rotate=""
-#rotate="rotate=-.29,"
+#rotate="rotate=.29,"
 
 #speed=2
 test "$speed" || speed=1
@@ -35,7 +35,7 @@ outFile="$outFile-$i.gif"
 
 params=()
 test "$skip" && params=( "${params[@]}" "-ss" "$skip" )
-test "$skip" && params=( "${params[@]}" "-to" "$to" )
+test "$to" && params=( "${params[@]}" "-to" "$to" )
 params=( "${params[@]}" "-i" "`realpath "$inFile"`" )
 params=( "${params[@]}" "-vf" "${rotate}scale=$scale,crop=$crop,setpts=$speed*PTS,fps=fps=$fps" )
 
@@ -44,3 +44,10 @@ ffmpeg "${params[@]}" "$outFile"
 shift
 comment=`printf "$*\n${params[*]}"`
 exiftool -overwrite_original_in_place -Comment="$comment" "$outFile"
+
+origDate=`stat -c "%y" "$inFile"`
+timeDiff="0"
+if [ "$skip" ]; then
+    timeDiff="`echo "$skip" | perl -ne 'print((($1||0) * 60 + ($2||0)) * 60 + ($3||0)) if /^(?:(?:(\d+):)?(\d+):)?(\d+(?:\.\d+)?)\s*$/;'`"
+fi
+touch --date="$origDate + $timeDiff seconds" "$outFile"

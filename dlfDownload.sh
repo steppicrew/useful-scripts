@@ -8,8 +8,10 @@ if [ -z "$pageUrl" ]; then
 fi
 
 # get master file
-masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player:stream" content="([^"]+)">/'`
-test "$masterFile" || masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player" content="([^"]+)">/'`
+masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player:stream" content="([^"]+)"(?: *\/)?>/'`
+test "$masterFile" || masterFile=`wget -O - -q "$pageUrl" | perl -ne 'print $1 if /<meta name="twitter:player" content="([^"]+)"(?: *\/)?>/'`
+
+echo "MasterFile: $masterFile"
 
 # get mp3 file
 mp3Urls=`wget -O - -q "$masterFile" | perl -ne 'print "$1 " if /data-audio-src="(https:\/\/[^"]+\.mp3)"/'`
