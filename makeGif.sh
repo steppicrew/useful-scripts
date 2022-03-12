@@ -41,13 +41,13 @@ params=( "${params[@]}" "-vf" "${rotate}scale=$scale,crop=$crop,setpts=$speed*PT
 
 echo ffmpeg "${params[@]}" "$outFile"
 ffmpeg "${params[@]}" "$outFile"
+exiftool -TagsFromFile "$inFile" -All:All "$outFile"
+
 shift
 comment=`printf "$*\n${params[*]}"`
 exiftool -overwrite_original_in_place -Comment="$comment" "$outFile"
 
-origDate=`stat -c "%y" "$inFile"`
-timeDiff="0"
-if [ "$skip" ]; then
-    timeDiff="`echo "$skip" | perl -ne 'print((($1||0) * 60 + ($2||0)) * 60 + ($3||0)) if /^(?:(?:(\d+):)?(\d+):)?(\d+(?:\.\d+)?)\s*$/;'`"
-fi
-touch --date="$origDate + $timeDiff seconds" "$outFile"
+dir=`dirname "$0"`
+dir=`realpath "$dir"`
+"$dir/fixGifDate.sh" "$inFile" "$outFile"
+
