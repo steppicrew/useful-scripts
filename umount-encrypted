@@ -1,0 +1,11 @@
+#!/bin/bash
+
+serial="$1"
+
+device="/dev/$( udisksctl status | grep "$serial" | perl -ne 'print $1 if /\b(sd.\d?)\b/' )1"
+
+mapper_device="/dev/mapper/$( lsblk -no NAME,TYPE "$device" | perl -ne 'print $1 if /(luks\-\S+)\b/' )"
+
+udisksctl unmount -b "$mapper_device"
+
+udisksctl lock -b "$device"
