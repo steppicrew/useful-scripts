@@ -4,6 +4,10 @@
 # It simply finds the current running kwin process, kills it and starts it again with same parameters
 
 killall plasmashell
+plasmashell >/dev/null 2>&1 &
+exit
+
+killall plasmashell
 kstart5 plasmashell
 
 exit
